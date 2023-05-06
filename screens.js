@@ -29,7 +29,7 @@ function StartScreenClick(){
     // Checks if the rectanglular area around the 'More Games' button is clicked
     if(mouseX>285 && mouseX <475 && mouseY>340&& mouseY<385){
       // Loads the more-games.html page in a new window
-      window.open("setup.html");
+      setUpSerial();
       // Plays the click sound
       clickedsound.play();
     }
@@ -155,4 +155,17 @@ function LevelScreenClick(){
         levelSix();
       }
     }
+}
+
+// This function will be called by the web-serial library
+// with each new *line* of data. The serial library reads
+// the data until the newline and then gives it to us through
+// this callback function
+function readSerial(data) {
+  if (data != null) {
+    console.log(data);
+    joystickInput = data;
+    let sendToArduino = 0 + "\n";
+    writeSerial(sendToArduino);
+  }
 }

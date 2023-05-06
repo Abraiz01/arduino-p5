@@ -25,7 +25,7 @@ class Player {
     this.middleY = this.y+tileSize/2;
 
     // if a key is pressed
-    if (keyIsPressed==true){
+    // if (keyIsPressed==true){
       // when the first key of teh game is pressed, set previous key code
       if (this.pKeyPress == 'None'){
         this.pKeyPress = keyCode;
@@ -65,26 +65,28 @@ class Player {
 
         // if it is a solid tile
         if(pos == 1){
+          console.log("WITHIN SOLID");
+          console.log("JoyStick Direction", joystickInput);
           // if keycode is right key (D)
-          if (keyCode ==68) {
+          if (joystickInput ==4) {
             // set update keycode and change paxon graphic
             this.currKeyCode = 68;
             this.graphic = rightPacXon;
           }
           // if keycode is left key (A)
-          if (keyCode ==65) {
+          if (joystickInput ==3) {
             // set update keycode and change paxon graphic
             this.currKeyCode = 65;
             this.graphic = leftPacXon;
           }
           // if keycode is up key (W)
-          if (keyCode ==87) {
+          if (joystickInput ==2) {
             // / set update keycode and change paxon graphic
             this.currKeyCode = 87;
             this.graphic = upPacXon;
           }
           // if keycode is down key (S)
-          if (keyCode ==83) {
+          if (joystickInput ==1) {
             // / set update keycode and change paxon graphic
             this.currKeyCode = 83;
             this.graphic = downPacXon;
@@ -93,29 +95,29 @@ class Player {
         // If the playeer is moving and creating blocks in the empty space, basically 'drawing the line'
         else{
           // If the player is going left, it cannot move left
-          if (keyCode ==68 && this.currKeyCode!=65) {
+          if (joystickInput ==4 && joystickInput!=3) {
             this.currKeyCode = 68;
             this.graphic = rightPacXon;
           }
           // If the player is going right, it cannot move right
-          if (keyCode ==65 && this.currKeyCode!=68) {
+          if (joystickInput ==3 && joystickInput!=4) {
             this.currKeyCode = 65;
             this.graphic = leftPacXon;
           }
           // If the player is going down, it cannot move down
-          if (keyCode ==87 && this.currKeyCode!=83) {
+          if (joystickInput ==2 && joystickInput!=1) {
             this.currKeyCode = 87;
             this.graphic = upPacXon;
           }
           // If the player is going up, it cannot move up
-          if (keyCode ==83 && this.currKeyCode!=87) {
+          if (joystickInput ==1 && joystickInput!=2) {
             this.currKeyCode = 83;
             this.graphic = downPacXon;
           }
         }
       }
 
-    }
+    // }
     // if current key code is 68 and x is less than the width, move right
     if (this.currKeyCode == 68 && this.x < width){
       this.x  += this.speed;
