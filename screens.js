@@ -165,7 +165,7 @@ function readSerial(data) {
   if (data != null) {
     console.log(data);
     joystickInput = data;
-    let sendToArduino = 0 + "\n";
+    let sendToArduino = player.lives + "\n";
     writeSerial(sendToArduino);
   }
 }
