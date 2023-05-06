@@ -9,7 +9,10 @@ int lives3Pin = 11;
 int lives2Pin = 10;
 int lives1Pin = 9;
 
-int lives;
+// haptic feedback
+int hapticPin = 8;
+
+int lives, prevlives = 3;
 
 void setup () {
 // put your setup code here, to run once:
@@ -21,6 +24,8 @@ void setup () {
   pinMode( lives3Pin , INPUT);
   pinMode( lives2Pin , INPUT);
   pinMode( lives1Pin, INPUT);
+
+  pinMode( hapticPin, INPUT);
 
   Serial.begin(9600);
 
@@ -60,28 +65,49 @@ void loop() {
       }
       delay(100);
 
-    if (lives == 3) {
-      digitalWrite(9, HIGH);
-      digitalWrite(10, HIGH);
-      digitalWrite(11, HIGH);
-    }
-    else if (lives == 2) {
-      digitalWrite(9, HIGH);
-      digitalWrite(10, HIGH);
-      digitalWrite(11, LOW);
-    }
-    else if (lives == 1) {
-      digitalWrite(9, HIGH);
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
-    }
-    else if (lives == 0) {
-      digitalWrite(9, LOW);
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
-    }
+      if (lives == 3) {
+        digitalWrite(9, HIGH);
+        digitalWrite(10, HIGH);
+        digitalWrite(11, HIGH);
+      }
+      else if (lives == 2) {
+        if(prevlives - lives == 1) {
+          digitalWrite(hapticPin, HIGH); //vibrate
+          delay(1000);  // delay one second
+          digitalWrite(hapticPin, LOW);  //stop vibrating
+          delay(1000); //wait 50 seconds.
+        }
+        digitalWrite(9, HIGH);
+        digitalWrite(10, HIGH);
+        digitalWrite(11, LOW);
+      }
+      else if (lives == 1) {
+        if(prevlives - lives == 1) {
+          digitalWrite(hapticPin, HIGH); //vibrate
+          delay(1000);  // delay one second
+          digitalWrite(hapticPin, LOW);  //stop vibrating
+          delay(1000); //wait 50 seconds.
+        }
+        digitalWrite(9, HIGH);
+        digitalWrite(10, LOW);
+        digitalWrite(11, LOW);
+      }
+      else if (lives == 0) {
+        if(prevlives - lives == 1) {
+          digitalWrite(hapticPin, HIGH); //vibrate
+          delay(1000);  // delay one second
+          digitalWrite(hapticPin, LOW);  //stop vibrating
+          delay(1000); //wait 50 seconds.
+        }
+        digitalWrite(9, LOW);
+        digitalWrite(10, LOW);
+        digitalWrite(11, LOW);
+      }
 
     }
+
+    prevlives = lives;
+
   }
   digitalWrite(LED_BUILTIN, LOW);
 
