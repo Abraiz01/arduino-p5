@@ -28,8 +28,10 @@ function StartScreenClick(){
     }
     // Checks if the rectanglular area around the 'More Games' button is clicked
     if(mouseX>285 && mouseX <475 && mouseY>340&& mouseY<385){
-      // Loads the more-games.html page in a new window
-      setUpSerial();
+      // Sets the variables for the 'Select Controls' screen to appear
+      loadcontrolsscreen = true;
+      // Ensures that the positions for the clicks on the MENU page are not being checked
+      checkMenuclick == false;
       // Plays the click sound
       clickedsound.play();
     }
@@ -49,6 +51,45 @@ function HowToPlayClick(){
       // Plays the sound
       clickedsound.play();
     }
+}
+
+// Function to load the How To Play screen image
+function SelectControlsScreen(){
+  image(controlscreens, 0, 0);
+}
+// Function to check if specific areas on the How to play screen have been clicked
+function SelectControlsClick(){
+  // Checks if the rectanglular area around the 'Return to Menu button is clicked
+
+  if(mouseX>155 && mouseX <340 && mouseY>265&& mouseY<360){
+    print("JoyStick Clicked")
+    // If a Serial Connection with the Arduino has not been established yet
+    if(!serialActive){
+      // Initiates the establishment of a Serial connection with the JoyStick
+      setUpSerial();
+    }
+    gestureActive = false;
+    joystickActive = true;
+    // Plays the sound
+    clickedsound.play();
+  }
+
+  if(mouseX>400 && mouseX <580 && mouseY>265&& mouseY<360){
+    print("Gesture Clicked")
+    gestureActive = true;
+    joystickActive = false;
+    // Plays the sound
+    clickedsound.play();
+  }
+  
+  if(mouseX>270 && mouseX <460 && mouseY>410&& mouseY<455){
+    // Sets the variables to stop showing the how to play screen
+    loadcontrolsscreen = false;
+    // Does not check for click on the areas for the buttons on the how to play screen
+    selectcontrols = false;
+    // Plays the sound
+    clickedsound.play();
+  }
 }
 
 // Shows the appropriateimage according to the number of levels that are completed by a user.

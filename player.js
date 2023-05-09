@@ -20,6 +20,7 @@ class Player {
 
   // move player
   move(){
+
     // set up middle of player positions
     this.middleX = this.x+tileSize/2;
     this.middleY = this.y+tileSize/2;
@@ -65,28 +66,26 @@ class Player {
 
         // if it is a solid tile
         if(pos == 1){
-          console.log("WITHIN SOLID");
-          console.log("JoyStick Direction", joystickInput);
           // if keycode is right key (D)
-          if (joystickInput ==4) {
+          if (joystickInput ==4 || keyCode ==68 || gestureDirection == "right") {
             // set update keycode and change paxon graphic
             this.currKeyCode = 68;
             this.graphic = rightPacXon;
           }
           // if keycode is left key (A)
-          if (joystickInput ==3) {
+          if (joystickInput ==3 || keyCode ==65 || gestureDirection == "left") {
             // set update keycode and change paxon graphic
             this.currKeyCode = 65;
             this.graphic = leftPacXon;
           }
           // if keycode is up key (W)
-          if (joystickInput ==2) {
+          if (joystickInput ==2 || keyCode ==87 || gestureDirection == "up") {
             // / set update keycode and change paxon graphic
             this.currKeyCode = 87;
             this.graphic = upPacXon;
           }
           // if keycode is down key (S)
-          if (joystickInput ==1) {
+          if (joystickInput ==1 || keyCode ==83 || gestureDirection == "down") {
             // / set update keycode and change paxon graphic
             this.currKeyCode = 83;
             this.graphic = downPacXon;
@@ -95,22 +94,22 @@ class Player {
         // If the playeer is moving and creating blocks in the empty space, basically 'drawing the line'
         else{
           // If the player is going left, it cannot move left
-          if (joystickInput ==4 && joystickInput!=3) {
+          if ((joystickInput ==4 || keyCode ==68 || gestureDirection == "right") && this.currKeyCode!=65) {
             this.currKeyCode = 68;
             this.graphic = rightPacXon;
           }
           // If the player is going right, it cannot move right
-          if (joystickInput ==3 && joystickInput!=4) {
+          if ((joystickInput ==3 || keyCode ==65 || gestureDirection == "left") && this.currKeyCode!=68) {
             this.currKeyCode = 65;
             this.graphic = leftPacXon;
           }
           // If the player is going down, it cannot move down
-          if (joystickInput ==2 && joystickInput!=1) {
+          if ((joystickInput ==2 || keyCode ==87 || gestureDirection == "up") && this.currKeyCode!=83) {
             this.currKeyCode = 87;
             this.graphic = upPacXon;
           }
           // If the player is going up, it cannot move up
-          if (joystickInput ==1 && joystickInput!=2) {
+          if ((joystickInput ==1 || keyCode ==83 || gestureDirection == "down") && this.currKeyCode!=87) {
             this.currKeyCode = 83;
             this.graphic = downPacXon;
           }

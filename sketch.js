@@ -36,6 +36,9 @@ let gamestart;
 let checkMenuclick;
 let load_level;
 let loadhowtoplay;
+let selectcontrols;
+let joystickActive;
+let loadcontrolsscreen;
 let checkhowtoplay;
 let gamebegin;
 let checkforselectlevel;
@@ -55,12 +58,23 @@ let level4;
 let level5;
 let level6;
 let main_image;
+let controlscreens;
+let controlscreensbackup;
+let joystickselectedscreen;
 let howtoplay;
 let clicktostart;
 let levelup;
 let endimg;
 let finish;
 let returnto;
+// Variables for gesture detection
+let video;
+let handPose;
+let hands;
+let gestureActive = "";
+let getVideo;
+let videoSet;
+let gestureDirection;
 // Variables to store all the sounds
 let gameoversound, movingsound, clickedsound, collectionsound, collisionsound, levelupsound, movement, bg;
 // Declaring and initializingthe counter and max counter to calculate the percentage and keep track for the preloader
@@ -68,6 +82,15 @@ let counter = 1;;
 let maxCounter = 34;
 // joysrick variables
 let joystickInput = 0;
+
+// Function for initiating the Gesture Detection
+function modelReady() {
+  console.log('hand pose loaded');
+  handpose.on('predict', results => {
+    // Storing the result based on hand gestures
+    hands = results;
+  });
+}
 
 // Pre Loading all the assets
 // The updateCounter parameter is passed in each loadXYZ() function to call the updateCounter function for progressing the pre-loader
@@ -93,6 +116,9 @@ function preload() {
   level4 = loadImage('assets/Screens/level4.png', updateCounter);
   level5 = loadImage('assets/Screens/level5.png', updateCounter);
   level6 = loadImage('assets/Screens/level6.png', updateCounter);
+  controlscreens = loadImage('assets/Screens/controls.png', updateCounter);
+  joystickselectedscreen = loadImage('assets/Screens/joystick_selected.png', updateCounter);
+  gestureselectedscreen = loadImage('assets/Screens/gestures_selected.png', updateCounter);
   howtoplay = loadImage('assets/Screens/howtoplay.png', updateCounter);
   clicktostart = loadImage('assets/Screens/clicktostart.png', updateCounter);
   levelup = loadImage('assets/Screens/levelcompleted.png', updateCounter);
@@ -129,6 +155,15 @@ function setup() {
   checkMenuclick = false;
   load_level = false;
   loadhowtoplay = false;
+  loadcontrolsscreen = false;
+  selectcontrols = false;
+  gestureActive = false;
+  getVideo = false;
+  videoSet = false;
+  joystickActive = false;
+  gesturehighlight = false;
+  joystickhighlight=false;
+  controlscreensbackup = controlscreens;
   checkhowtoplay =  false;
   gamebegin = false;
   checkforselectlevel =  false;
@@ -172,23 +207,50 @@ function setup() {
 }
 
 function draw(){
+  // Gets the User's Video if the Gesture Option is selected
+  if((getVideo == true)&& (videoSet==false)){
+    video = createCapture(VIDEO);
+    video.hide();
+    const options = {};
+    handpose = ml5.handpose(video, options, modelReady);
+    videoSet = true;
+  }
+  if (gestureActive){
+    getGestures();
+  }
   // When this is false, the MENU or the Level Selection screen appears
   if(gamestart == false){
     // If this if false, the MENU Screen will appear, which it will initially
     if (load_level == false){
       // If the how to play screen is clicked, the menu screen is not shown and instead the how to play screen is shown in the else {
       // When the how to play screen is closed, the menu screen appears again as the variable becomes false
-      if (loadhowtoplay == false){
+      if (loadhowtoplay == false && loadcontrolsscreen == false){
         // Clicks for the menu screen are detected
         checkMenuclick = true;
         // The Start Screen is shown
         StartScreen();
       }
-      else{
+      else if (loadhowtoplay == true){
+        checkMenuclick=false;
         // The How To Play Screen is shown
         HowToPlayScreen();
         // Clicks for that screen are detected
         checkhowtoplay = true;
+      }
+      else if (loadcontrolsscreen == true){
+        checkMenuclick=false;
+        // The How To Play Screen is shown
+        SelectControlsScreen();
+        // Clicks for that screen are detected
+        selectcontrols = true;
+
+        if(serialActive==true){
+          controlscreens = joystickselectedscreen;
+        }
+        if(gestureActive==true){
+          getVideo = true;
+          controlscreens = gestureselectedscreen;
+        }
       }
     }
     // The Load Screen will appear instead of the Menu Screen
@@ -331,13 +393,16 @@ function mousePressed(){
   if(checkMenuclick == true){
     StartScreenClick();
   }
-  if(checkhowtoplay == true){
+  else if(checkhowtoplay == true){
     HowToPlayClick();
   }
-  if(checkforselectlevel == true){
+  else if(selectcontrols == true){
+    SelectControlsClick();
+  }
+  else if(checkforselectlevel == true){
     LevelScreenClick();
   }
-  if(checkforStart == true){
+  else if(checkforStart == true){
     gamebegin =  true;
   }
   // Checks for clicks on the level up screens
@@ -403,4 +468,60 @@ function updateCounter() {
   let progress_bar = document.querySelector('#progress_bar');
   // The percentage is calculated
   progress_bar.style.width = int(counter/maxCounter*100) + "%";
+}
+
+function getGestures(){
+  if (hands && hands.length > 0) {
+    for (let hand of hands) {
+      let annotations = hand.annotations;
+      let thumb = annotations.thumb;
+
+      let tx = thumb[3][0];
+      let ty = thumb[3][1];
+
+      let thumbsup = true;
+      let thumbsdown = true;
+      let thumbsleft = true;
+      let thumbsright = true;
+
+      let parts = Object.keys(annotations);
+      let count = 0;
+      for (let part of parts) {
+        for (let position of annotations[part]) {
+          let [x, y, z] = position;
+
+          if (part === 'thumb') {
+            if (x < tx) {
+              thumbsleft = false;
+            } else if (x > tx) {
+              thumbsright = false;
+            }
+          } else {
+            if (y < ty) {
+              thumbsup = false;
+            } else if (y > ty) {
+              thumbsdown = false;
+            }
+          }
+        }
+      }
+
+      if (thumbsup) {
+        console.log("UP");
+        gestureDirection = "up";
+      } 
+      else if (thumbsdown) {
+        console.log("DOWN");
+        gestureDirection = "down";
+      } 
+      else if (thumbsleft) {
+        console.log("RIGHT");
+        gestureDirection = "right";
+      } 
+      else if (thumbsright) {
+        console.log("LEFT");
+        gestureDirection = "left";
+      }
+    }
+  }
 }
