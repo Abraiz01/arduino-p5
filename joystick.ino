@@ -8,121 +8,109 @@ int dirLeft = 4;
 int lives3Pin = 11;
 int lives2Pin = 10;
 int lives1Pin = 9;
+int lives = 3;
+int prevlives = 3;
+int vibrate = 0;
 
-// haptic feedback
-int hapticPin = 8;
+// int lives, prevlives = 3;
+int motorPin = 3; //motor transistor is connected to pin 10
+int motorState = LOW;  // motorState used to set the Motor Vibration
+unsigned long previousMillis = 0;  // will store last time LED was updated
+const long interval = 1000;  // interval at which to blink (milliseconds)
 
-int lives, prevlives = 3;
 
 void setup()
 {
-  // put your setup code here, to run once:
-  pinMode(dirDown, INPUT);
-  pinMode(dirUp, INPUT);
-  pinMode(dirLeft, INPUT);
-  pinMode(dirRight, INPUT);
+  pinMode( dirDown , INPUT);
+  pinMode( dirUp , INPUT);
+  pinMode( dirLeft , INPUT);
+  pinMode( dirRight, INPUT);
 
-  pinMode(lives3Pin, INPUT);
-  pinMode(lives2Pin, INPUT);
-  pinMode(lives1Pin, INPUT);
-
-  pinMode(hapticPin, INPUT);
-
+  pinMode(motorPin, OUTPUT);
   Serial.begin(9600);
 
-  // start the handshake
-  while (Serial.available() <= 0)
-  {
+  while (Serial.available() <= 0) {
     digitalWrite(LED_BUILTIN, HIGH); // on/blink while waiting for serial data
-    Serial.println("0");             // send a starting message
-    delay(300);                      // wait 1/3 second
+    Serial.println("0"); // send a starting message
+    delay(300);            // wait 1/3 second
     digitalWrite(LED_BUILTIN, LOW);
     delay(50);
   }
 }
-void loop()
-{
-  // put your main code here, to run repeatedly:
 
-  // wait for data from p5 before doing something
-  while (Serial.available())
-  {
-    digitalWrite(LED_BUILTIN, HIGH); // led on while receiving data
+void loop(){
+  
+  while (Serial.available()) {
+      prevlives = lives;
+      lives = Serial.parseInt();
+      if(prevlives != lives){
+        vibrate=1;
+      }
 
-    lives = Serial.parseInt();
-
-    if (Serial.read() == '\n')
-    {
-      if (digitalRead(dirDown) == LOW)
-      {
-        Serial.println(1);
-      }
-      else if (digitalRead(dirUp) == LOW)
-      {
-        Serial.println(2);
-      }
-      else if (digitalRead(dirLeft) == LOW)
-      {
-        Serial.println(3);
-      }
-      else if (digitalRead(dirRight) == LOW)
-      {
-        Serial.println(4);
-      }
-      else
-      {
-        Serial.println(0);
-      }
-      delay(100);
-
-      if (lives == 3)
-      {
-        digitalWrite(9, HIGH);
-        digitalWrite(10, HIGH);
-        digitalWrite(11, HIGH);
-      }
-      else if (lives == 2)
-      {
-        if (prevlives - lives == 1)
-        {
-          digitalWrite(hapticPin, HIGH); // vibrate
-          delay(1000);                   // delay one second
-          digitalWrite(hapticPin, LOW);  // stop vibrating
-          delay(1000);                   // wait 50 seconds.
-          digitalWrite(9, HIGH);
-          digitalWrite(10, HIGH);
-          digitalWrite(11, LOW);
+      if (Serial.read() == '\n') {
+        if (digitalRead( dirDown ) == LOW ){
+          Serial.println(3);
         }
-      }
-      else if (lives == 1)
-      {
-        if (prevlives - lives == 1)
-        {
-          digitalWrite(hapticPin, HIGH); // vibrate
-          delay(1000);                   // delay one second
-          digitalWrite(hapticPin, LOW);  // stop vibrating
-          delay(1000);                   // wait 50 seconds.
+        else if (digitalRead( dirUp ) == LOW ){
+          Serial.println(4);
         }
-        digitalWrite(9, HIGH);
-        digitalWrite(10, LOW);
-        digitalWrite(11, LOW);
-      }
-      else if (lives == 0)
-      {
-        if (prevlives - lives == 1)
-        {
-          digitalWrite(hapticPin, HIGH); // vibrate
-          delay(1000);                   // delay one second
-          digitalWrite(hapticPin, LOW);  // stop vibrating
-          delay(1000);                   // wait 50 seconds.
+        else if (digitalRead( dirLeft ) == LOW ){
+          Serial.println(2);
         }
-        digitalWrite(9, LOW);
-        digitalWrite(10, LOW);
-        digitalWrite(11, LOW);
+        else if (digitalRead( dirRight ) == LOW ){
+          Serial.println(1);
+          // digitalWrite(motorPin, HIGH); //vibrate
+        }
+        else {
+          Serial.println(0);
       }
+
+      if(vibrate == 1){
+        unsigned long currentMillis = millis();
+        if (currentMillis - previousMillis >= interval) {
+          // save the last time you blinked the LED
+          previousMillis = currentMillis;
+
+          // if the LED is off turn it on and vice-versa:
+          if (motorState == LOW) {
+            motorState = HIGH;
+          } else {
+            motorState = LOW;
+            vibrate=0;
+          }
+
+          // set the LED with the ledState of the variable:
+          digitalWrite(motorPin, motorState);
+        }
+        // else{
+        //   vibrate=0;
+        // }
+      }
+
+      if (lives == 3) {
+        digitalWrite(lives1Pin, HIGH);
+        digitalWrite(lives2Pin, HIGH);
+        digitalWrite(lives3Pin, HIGH);
+      }
+      else if (lives == 2) {
+        digitalWrite(lives1Pin, HIGH);
+        digitalWrite(lives2Pin, HIGH);
+        digitalWrite(lives3Pin, LOW);
+        // digitalWrite(motorPin, HIGH); //vibrate
+      }
+      else if (lives == 1) {
+        digitalWrite(lives1Pin, HIGH);
+        digitalWrite(lives2Pin, LOW);
+        digitalWrite(lives3Pin, LOW);
+      }
+      else if (lives == 0) {
+        digitalWrite(lives1Pin, LOW);
+        digitalWrite(lives2Pin, LOW);
+        digitalWrite(lives3Pin, LOW);
+        // digitalWrite(motorPin, HIGH); //vibrate
+      }
+
     }
+    } 
 
-    prevlives = lives;
-  }
-  digitalWrite(LED_BUILTIN, LOW);
 }
